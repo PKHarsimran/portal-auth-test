@@ -1,42 +1,77 @@
 {% extends "base.html" %}
-{% set title = "Dashboard" %}
+{% set title = "My Account" %}
 
 {% block content %}
-<div class="card">
-  <h1>Welcome, {{ username }}</h1>
-  <p>This is the protected dashboard.</p>
-</div>
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Portal overview</p>
+    <h1>Welcome, {{ username }}</h1>
+    <p>This protected landing page now behaves more like a member portal home.</p>
+  </div>
+  <div class="status-pill">Session active</div>
+</section>
 
-<div class="grid">
+<div class="grid grid-three-up">
   <div class="card">
-    <h2>Menu 1: Normal links</h2>
-    <ul>
-      <li><a href="{{ url_for('reports') }}">View reports</a></li>
-      <li><a href="{{ url_for('settings') }}">Open settings</a></li>
+    <h2>Primary routes</h2>
+    <ul class="link-list">
+      <li><a href="{{ url_for('my_account') }}">/site/my-account</a></li>
+      <li><a href="{{ url_for('reports') }}">/site/reports</a></li>
+      <li><a href="{{ url_for('settings') }}">/site/settings</a></li>
     </ul>
   </div>
 
   <div class="card">
-    <h2>Menu 2: JS / CMS style</h2>
-    <div class="menu-box" data-url="{{ url_for('reports') }}">Reports via data-url</div>
-    <button class="nav-btn" onclick="location.href='{{ url_for('settings') }}'">
+    <h2>Data attribute navigation</h2>
+    <a class="menu-box" href="{{ url_for('reports') }}" data-href="{{ url_for('reports') }}">
+      Reports via data-href
+    </a>
+    <button class="nav-btn menu-box-secondary" type="button" data-link="{{ url_for('settings') }}">
+      Settings via data-link
+    </button>
+    <button class="nav-btn" type="button" onclick="location.href='{{ url_for('settings') }}'">
       Settings via onclick
     </button>
   </div>
+
+  <div class="card">
+    <h2>Auth edge cases</h2>
+    <ul class="link-list">
+      <li><a href="{{ url_for('forbidden') }}">/site/forbidden</a></li>
+      <li><a href="{{ url_for('silent_expired') }}">/site/silent-expired</a></li>
+      <li><a href="{{ url_for('logout') }}">/logout</a></li>
+    </ul>
+  </div>
 </div>
 
-<div class="card">
-  <h2>Extra test routes</h2>
-  <ul>
-    <li><a href="/silent-expired">Silent expired session page (200 OK login page)</a></li>
-    <li><a href="/logout">Logout</a></li>
-  </ul>
+<div class="grid">
+  <div class="card">
+    <h2>Responsive image asset</h2>
+    <p class="muted">Includes `src` + `srcset` for crawler asset discovery.</p>
+    <img
+      alt="Portal analytics preview"
+      class="portal-image"
+      src="{{ url_for('static', filename='portal-preview-large.svg') }}"
+      srcset="{{ url_for('static', filename='portal-preview-small.svg') }} 480w, {{ url_for('static', filename='portal-preview-large.svg') }} 960w"
+      sizes="(max-width: 640px) 100vw, 480px"
+    >
+  </div>
+
+  <div class="card">
+    <h2>Iframe asset</h2>
+    <p class="muted">Embeds an internal static document.</p>
+    <iframe
+      class="portal-frame"
+      title="Embedded portal status"
+      src="{{ url_for('static', filename='embedded-status.html') }}"
+    ></iframe>
+  </div>
 </div>
 
 <script>
-  document.querySelectorAll("[data-url]").forEach((el) => {
+  document.querySelectorAll("[data-href], [data-link]").forEach((el) => {
     el.addEventListener("click", () => {
-      window.location.href = el.dataset.url;
+      window.location.href = el.dataset.link || el.dataset.href;
     });
   });
 </script>

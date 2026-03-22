@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240" role="img" aria-label="Portal preview small">
+  <rect width="480" height="240" fill="#eff6ff" />
+  <rect x="24" y="24" width="432" height="48" rx="10" fill="#1d4ed8" />
+  <rect x="24" y="92" width="200" height="120" rx="12" fill="#bfdbfe" />
+  <rect x="244" y="92" width="212" height="24" rx="8" fill="#93c5fd" />
+  <rect x="244" y="128" width="180" height="24" rx="8" fill="#93c5fd" />
+  <rect x="244" y="164" width="150" height="24" rx="8" fill="#93c5fd" />
+</svg>

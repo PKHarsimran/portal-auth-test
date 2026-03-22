@@ -2,15 +2,33 @@
 {% set title = "Settings" %}
 
 {% block content %}
-<div class="card">
-  <h1>Settings</h1>
-  <p>Protected settings page.</p>
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Preferences</p>
+    <h1>Settings</h1>
+    <p>Protected settings page with an inline-style asset and common profile controls.</p>
+  </div>
+  <div class="status-pill">2FA enabled</div>
+</section>
 
-  <div
-    class="inline-bg"
-    style="background-image:url('{{ url_for('static', filename='bg-pattern.png') }}')"
-  >
-    Inline style asset test
+<div class="grid">
+  <div class="card">
+    <h2>Profile modules</h2>
+    <ul class="link-list">
+      <li><a href="{{ url_for('settings') }}#notifications">Notification preferences</a></li>
+      <li><a href="{{ url_for('settings') }}#security">Security controls</a></li>
+      <li><a href="{{ url_for('settings') }}#branding">Portal branding</a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Inline style asset</h2>
+    <div
+      class="inline-bg"
+      style="background-image:url('{{ url_for('static', filename='bg-pattern.svg') }}')"
+    >
+      Inline style asset test
+    </div>
   </div>
 </div>
 {% endblock %}

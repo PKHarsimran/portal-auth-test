@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% set title = "Forbidden" %}
+
+{% block content %}
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Access blocked</p>
+    <h1>403 Forbidden</h1>
+    <p>This protected route intentionally returns a forbidden response for crawler testing.</p>
+  </div>
+  <div class="status-pill status-pill-danger">Restricted</div>
+</section>
+
+<div class="card">
+  <p>You are authenticated, but this section is unavailable for the current role.</p>
+  <a href="{{ url_for('my_account') }}">Return to my account</a>
+</div>
+{% endblock %}

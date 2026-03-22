@@ -2,9 +2,29 @@
 {% set title = "Reports" %}
 
 {% block content %}
-<div class="card">
-  <h1>Reports</h1>
-  <p>Protected reports page.</p>
-  <p>Useful for testing authenticated page traversal.</p>
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Reporting workspace</p>
+    <h1>Reports</h1>
+    <p>Protected reports page with portal-like navigation and export affordances.</p>
+  </div>
+  <div class="status-pill">3 scheduled jobs</div>
+</section>
+
+<div class="grid">
+  <div class="card">
+    <h2>Saved report links</h2>
+    <ul class="link-list">
+      <li><a href="{{ url_for('reports') }}?type=claims">Claims summary</a></li>
+      <li><a href="{{ url_for('reports') }}?type=utilization">Utilization trends</a></li>
+      <li><a href="{{ url_for('reports') }}?type=access">Access review</a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Embedded actions</h2>
+    <div class="menu-box" data-href="{{ url_for('settings') }}">Open delivery settings</div>
+    <div class="menu-box menu-box-secondary" data-link="{{ url_for('my_account') }}">Return to my account</div>
+  </div>
 </div>
 {% endblock %}
