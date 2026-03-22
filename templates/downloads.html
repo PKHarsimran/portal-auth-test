@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% set title = "Downloads" %}
+
+{% block content %}
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Document center</p>
+    <h1>File Downloads</h1>
+    <p>Protected download targets that require an authenticated session before returning attachments.</p>
+  </div>
+  <div class="status-pill">{{ files|length }} files</div>
+</section>
+
+<div class="card">
+  <h2>Available exports</h2>
+  <ul class="link-list">
+    {% for filename in files %}
+    <li><a href="{{ url_for('download_file', filename=filename) }}">{{ filename }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
