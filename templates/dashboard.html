@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set title = "Dashboard" %}
+
+{% block content %}
+<div class="card">
+  <h1>Welcome, {{ username }}</h1>
+  <p>This is the protected dashboard.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Menu 1: Normal links</h2>
+    <ul>
+      <li><a href="{{ url_for('reports') }}">View reports</a></li>
+      <li><a href="{{ url_for('settings') }}">Open settings</a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Menu 2: JS / CMS style</h2>
+    <div class="menu-box" data-url="{{ url_for('reports') }}">Reports via data-url</div>
+    <button class="nav-btn" onclick="location.href='{{ url_for('settings') }}'">
+      Settings via onclick
+    </button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Extra test routes</h2>
+  <ul>
+    <li><a href="/silent-expired">Silent expired session page (200 OK login page)</a></li>
+    <li><a href="/logout">Logout</a></li>
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll("[data-url]").forEach((el) => {
+    el.addEventListener("click", () => {
+      window.location.href = el.dataset.url;
+    });
+  });
+</script>
+{% endblock %}
