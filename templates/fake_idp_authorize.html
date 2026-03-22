@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Fake Enterprise IDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container narrow">
+    <div class="card">
+      <p class="section-kicker">Identity provider</p>
+      <h1>Fake Enterprise IDP</h1>
+      <p>This intermediate page simulates an external SSO prompt before redirecting back to the portal callback.</p>
+      <p class="muted">Callback target: <code>{{ callback_url }}</code></p>
+
+      <form method="post" action="{{ url_for('fake_idp_resume') }}">
+        <input type="hidden" name="relay_state" value="{{ relay_state }}">
+
+        <label for="sso_user">Choose a portal account</label>
+        <select id="sso_user" name="sso_user">
+          <option value="admin">admin</option>
+          <option value="auditor">auditor</option>
+          <option value="member">member</option>
+        </select>
+
+        <button type="submit">Continue back to portal</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

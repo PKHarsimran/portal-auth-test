@@ -14,11 +14,17 @@ A small Flask-based authenticated portal for testing website downloaders and cra
 - Session expiry after a configurable number of authenticated requests
 - Remember-me login cookie for persistent sessions
 - Protected file download endpoints
+- Fake SSO-like redirect chain that can be enabled or disabled
+- JS-rendered sidebar menu items for client-side navigation discovery
+- Role-based access pages for admin, auditor, and member personas
 
 ## Default credentials
 
-- Username: `admin`
-- Password: `password123`
+- `admin` / `password123` — Administrator
+- `auditor` / `password123` — Auditor
+- `member` / `password123` — Member
+
+Set `ENABLE_FAKE_SSO=0` to disable the optional fake SSO redirect chain.
 
 ## Run with Docker Compose
 
