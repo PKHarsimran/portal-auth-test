@@ -5,27 +5,51 @@ body {
   color: #1f2937;
 }
 
+a {
+  color: #1d4ed8;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   background: #111827;
   color: white;
   padding: 14px 20px;
 }
 
+.eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #93c5fd;
+}
+
 .brand {
   font-weight: 700;
+  font-size: 20px;
+}
+
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .topnav a {
   color: white;
   text-decoration: none;
   margin-left: 16px;
+  padding-bottom: 2px;
+}
+
+.topnav a.is-active {
+  border-bottom: 2px solid #93c5fd;
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1080px;
   margin: 32px auto;
   padding: 0 16px;
 }
@@ -42,10 +66,56 @@ body {
   margin-bottom: 20px;
 }
 
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.section-kicker {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: #2563eb;
+}
+
+.status-pill {
+  white-space: nowrap;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+}
+
+.status-pill-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
+}
+
+.grid-three-up {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.link-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.link-list li + li {
+  margin-top: 8px;
+}
+
+.muted {
+  color: #475569;
 }
 
 label {
@@ -64,6 +134,8 @@ input {
 
 button,
 .nav-btn {
+  display: inline-block;
+  width: 100%;
   margin-top: 16px;
   padding: 10px 14px;
   border: 0;
@@ -71,6 +143,7 @@ button,
   background: #2563eb;
   color: white;
   cursor: pointer;
+  text-align: left;
 }
 
 .alert {
@@ -89,19 +162,57 @@ button,
 }
 
 .menu-box {
+  display: block;
   margin-top: 10px;
   padding: 14px;
   border-radius: 8px;
   background: #e0f2fe;
   cursor: pointer;
+  text-decoration: none;
+  color: #0f172a;
+}
+
+.menu-box-secondary {
+  background: #dbeafe;
+  color: #1e3a8a;
 }
 
 .inline-bg {
   margin-top: 16px;
+  min-height: 180px;
   padding: 24px;
   border-radius: 8px;
   background-color: #f8fafc;
   background-size: cover;
   background-position: center;
   border: 1px solid #e2e8f0;
+  display: grid;
+  align-items: end;
+  font-weight: 700;
+}
+
+.portal-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+}
+
+.portal-frame {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+}
+
+@media (max-width: 720px) {
+  .topbar,
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topnav a {
+    margin: 0 16px 8px 0;
+  }
 }

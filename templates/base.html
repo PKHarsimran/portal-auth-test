@@ -9,11 +9,19 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">Portal Auth Test</div>
-    <nav class="topnav">
-      <a href="{{ url_for('dashboard') }}">Dashboard</a>
-      <a href="{{ url_for('reports') }}">Reports</a>
-      <a href="{{ url_for('settings') }}">Settings</a>
+    <div>
+      <div class="eyebrow">Authenticated Test Portal</div>
+      <div class="brand">Portal Auth Test</div>
+    </div>
+    <nav class="topnav" aria-label="Primary">
+      {% for section in portal_sections or [] %}
+      <a
+        href="{{ url_for(section.endpoint) }}"
+        class="{% if active_section == section.endpoint %}is-active{% endif %}"
+      >
+        {{ section.label }}
+      </a>
+      {% endfor %}
       <a href="{{ url_for('logout') }}">Logout</a>
     </nav>
   </header>

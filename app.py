@@ -20,10 +20,23 @@ def login_required(view_func):
     return wrapped_view
 
 
+def render_portal(template_name, **context):
+    return render_template(
+        template_name,
+        username=session.get("username", "user"),
+        portal_sections=[
+            {"label": "My Account", "endpoint": "my_account"},
+            {"label": "Reports", "endpoint": "reports"},
+            {"label": "Settings", "endpoint": "settings"},
+        ],
+        **context,
+    )
+
+
 @app.route("/")
 def home():
     if session.get("logged_in"):
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("my_account"))
     return redirect(url_for("login"))
 
 
@@ -32,7 +45,7 @@ def login():
     error = None
     redirect_url = request.args.get("redirectUrl") or request.form.get(
         "redirect_url"
-    ) or url_for("dashboard")
+    ) or url_for("my_account")
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -59,24 +72,42 @@ def logout():
 
 
 @app.route("/dashboard")
-@login_required
-def dashboard():
-    return render_template(
-        "dashboard.html",
-        username=session.get("username", "user"),
-    )
+def dashboard_legacy():
+    return redirect(url_for("my_account"))
 
 
 @app.route("/reports")
-@login_required
-def reports():
-    return render_template("reports.html")
+def reports_legacy():
+    return redirect(url_for("reports"))
 
 
 @app.route("/settings")
+def settings_legacy():
+    return redirect(url_for("settings"))
+
+
+@app.route("/site/my-account")
+@login_required
+def my_account():
+    return render_portal("dashboard.html", active_section="my_account")
+
+
+@app.route("/site/reports")
+@login_required
+def reports():
+    return render_portal("reports.html", active_section="reports")
+
+
+@app.route("/site/settings")
 @login_required
 def settings():
-    return render_template("settings.html")
+    return render_portal("settings.html", active_section="settings")
+
+
+@app.route("/site/forbidden")
+@login_required
+def forbidden():
+    return render_portal("403.html", active_section=None), 403
 
 
 @app.route("/forgot-password")
@@ -90,11 +121,13 @@ def reset_password():
 
 
 @app.route("/silent-expired")
+@app.route("/site/silent-expired")
 def silent_expired():
+    session.clear()
     return render_template(
         "login.html",
         error="Session expired. Please sign in again.",
-        redirect_url=url_for("dashboard"),
+        redirect_url=url_for("my_account"),
     ), 200
 
 
