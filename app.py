@@ -2,10 +2,12 @@ from functools import wraps
 import io
 import os
 from datetime import timedelta
+from urllib.parse import quote, unquote
 import zipfile
 
 from flask import (
     Flask,
+    abort,
     make_response,
     redirect,
     render_template,
@@ -25,6 +27,58 @@ app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
 PORTAL_USERNAME = os.getenv("PORTAL_USERNAME", "admin")
 PORTAL_PASSWORD = os.getenv("PORTAL_PASSWORD", "password123")
 MAX_AUTH_REQUESTS = int(os.getenv("MAX_AUTH_REQUESTS", "8"))
+ENABLE_FAKE_SSO = os.getenv("ENABLE_FAKE_SSO", "1") == "1"
+
+USER_DIRECTORY = {
+    "admin": {"password": PORTAL_PASSWORD, "role": "admin", "display_name": "Admin User"},
+    "auditor": {"password": "password123", "role": "auditor", "display_name": "Audit Reviewer"},
+    "member": {"password": "password123", "role": "member", "display_name": "Member Services"},
+}
+
+ROLE_LABELS = {
+    "admin": "Administrator",
+    "auditor": "Auditor",
+    "member": "Member",
+}
+
+ROLE_ACCESS = {
+    "admin": {"admin_tools", "audit_log", "member_services"},
+    "auditor": {"audit_log"},
+    "member": {"member_services"},
+}
+
+ROLE_PAGES = {
+    "admin_tools": {
+        "title": "Admin Tools",
+        "description": "Privileged operational controls and identity-provider settings.",
+        "summary": "Review fake SSO connections, session policies, and portal administration tasks.",
+        "allowed_roles": ["admin"],
+        "links": [
+            ("Open Reports", "reports", {}),
+            ("Download report bundle", "download_file", {"filename": "report-bundle.zip"}),
+        ],
+    },
+    "audit_log": {
+        "title": "Audit Log",
+        "description": "Read-only access to authentication and export trail events.",
+        "summary": "Inspect recent sign-in hops, exports, and downstream portal access patterns.",
+        "allowed_roles": ["admin", "auditor"],
+        "links": [
+            ("Open Quarterly Review", "nested_section_detail", {"section": "reports", "slug": "quarterly-review"}),
+            ("Download notice history", "download_file", {"filename": "notice-history.txt"}),
+        ],
+    },
+    "member_services": {
+        "title": "Member Services",
+        "description": "Role-scoped service center content for standard members and support staff.",
+        "summary": "View benefit documents, account support links, and service request resources.",
+        "allowed_roles": ["admin", "member"],
+        "links": [
+            ("Benefits overview", "section_detail", {"slug": "benefits"}),
+            ("Download handbook", "download_file", {"filename": "member-handbook.pdf"}),
+        ],
+    },
+}
 
 PORTAL_SECTIONS = [
     {"label": "My Account", "endpoint": "my_account"},
@@ -124,6 +178,48 @@ def build_report_bundle():
 DOWNLOADS["report-bundle.zip"] = build_report_bundle()
 
 
+def current_role():
+    return session.get("role", "member")
+
+
+def build_role_navigation():
+    role = current_role()
+    allowed = ROLE_ACCESS.get(role, set())
+    items = []
+    for slug, page in ROLE_PAGES.items():
+        if slug in allowed:
+            items.append({"label": page["title"], "endpoint": "role_page", "slug": slug})
+    return items
+
+
+def build_js_menu_items():
+    role = current_role()
+    items = [
+        {
+            "label": "Quick Reports",
+            "description": "Client-rendered link using data-route.",
+            "url": url_for("reports"),
+            "tone": "primary",
+        },
+        {
+            "label": "Download Center",
+            "description": "Client-rendered link using data-route.",
+            "url": url_for("downloads"),
+            "tone": "secondary",
+        },
+    ]
+    if "audit_log" in ROLE_ACCESS.get(role, set()):
+        items.append(
+            {
+                "label": "Audit Log",
+                "description": f"Visible for {ROLE_LABELS[role].lower()} access.",
+                "url": url_for("role_page", slug="audit_log"),
+                "tone": "neutral",
+            }
+        )
+    return items
+
+
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(*args, **kwargs):
@@ -136,7 +232,17 @@ def login_required(view_func):
 
 @app.before_request
 def expire_session_after_request_limit():
-    if request.endpoint in {"static", "login", "forgot_password", "reset_password", "health"}:
+    if request.endpoint in {
+        "static",
+        "login",
+        "forgot_password",
+        "reset_password",
+        "health",
+        "fake_sso_start",
+        "fake_sso_callback",
+        "fake_idp_authorize",
+        "fake_idp_resume",
+    }:
         return None
 
     if not session.get("logged_in"):
@@ -155,11 +261,18 @@ def expire_session_after_request_limit():
 
 
 def render_portal(template_name, **context):
+    role = current_role()
     return render_template(
         template_name,
-        username=session.get("username", "user"),
+        username=session.get("display_name") or session.get("username", "user"),
+        account_name=session.get("username", "user"),
+        current_role=role,
+        role_label=ROLE_LABELS.get(role, role.title()),
         portal_sections=PORTAL_SECTIONS,
         nested_sections=NESTED_SECTIONS,
+        role_navigation=build_role_navigation(),
+        js_menu_items=build_js_menu_items(),
+        fake_sso_enabled=ENABLE_FAKE_SSO,
         requests_remaining=session.get("requests_remaining", MAX_AUTH_REQUESTS),
         max_auth_requests=MAX_AUTH_REQUESTS,
         **context,
@@ -179,20 +292,26 @@ def login():
     redirect_url = request.args.get("redirectUrl") or request.form.get(
         "redirect_url"
     ) or url_for("my_account")
+    use_sso = request.args.get("sso") == "1" or request.form.get("use_sso") == "1"
 
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
+        if use_sso and ENABLE_FAKE_SSO:
+            return redirect(url_for("fake_sso_start", redirectUrl=redirect_url))
+
+        username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "")
         remember_me = request.form.get("remember_me") == "on"
+        user = USER_DIRECTORY.get(username)
 
-        if username == PORTAL_USERNAME and password == PORTAL_PASSWORD:
+        if user and password == user["password"]:
             session.clear()
             session["logged_in"] = True
             session["username"] = username
+            session["display_name"] = user["display_name"]
+            session["role"] = user["role"]
             session["requests_remaining"] = MAX_AUTH_REQUESTS
             session.permanent = remember_me
-            response = make_response(redirect(redirect_url))
-            return response
+            return make_response(redirect(redirect_url))
 
         error = "Invalid username or password."
 
@@ -200,7 +319,65 @@ def login():
         "login.html",
         error=error,
         redirect_url=redirect_url,
+        fake_sso_enabled=ENABLE_FAKE_SSO,
+        use_sso=use_sso,
+        accounts=USER_DIRECTORY,
+        role_labels=ROLE_LABELS,
     )
+
+
+@app.route("/auth/sso/start")
+def fake_sso_start():
+    if not ENABLE_FAKE_SSO:
+        return redirect(url_for("login"))
+
+    redirect_url = request.args.get("redirectUrl") or url_for("my_account")
+    relay_state = quote(redirect_url, safe="")
+    return redirect(url_for("fake_idp_authorize", relay=relay_state))
+
+
+@app.route("/auth/fake-idp/authorize")
+def fake_idp_authorize():
+    if not ENABLE_FAKE_SSO:
+        return redirect(url_for("login"))
+
+    relay_state = request.args.get("relay") or quote(url_for("my_account"), safe="")
+    callback_url = url_for("fake_sso_callback", _external=False)
+    return render_template(
+        "fake_idp_authorize.html",
+        relay_state=relay_state,
+        callback_url=callback_url,
+    )
+
+
+@app.route("/auth/fake-idp/resume", methods=["POST"])
+def fake_idp_resume():
+    if not ENABLE_FAKE_SSO:
+        return redirect(url_for("login"))
+
+    relay_state = request.form.get("relay_state") or quote(url_for("my_account"), safe="")
+    selected_user = request.form.get("sso_user", "admin").strip().lower()
+    return redirect(url_for("fake_sso_callback", code=f"fake-code-{selected_user}", relay=relay_state))
+
+
+@app.route("/auth/sso/callback")
+def fake_sso_callback():
+    if not ENABLE_FAKE_SSO:
+        return redirect(url_for("login"))
+
+    relay_state = request.args.get("relay") or quote(url_for("my_account"), safe="")
+    selected_user = (request.args.get("code") or "fake-code-admin").replace("fake-code-", "")
+    user = USER_DIRECTORY.get(selected_user, USER_DIRECTORY["admin"])
+
+    session.clear()
+    session["logged_in"] = True
+    session["username"] = selected_user if selected_user in USER_DIRECTORY else "admin"
+    session["display_name"] = user["display_name"]
+    session["role"] = user["role"]
+    session["requests_remaining"] = MAX_AUTH_REQUESTS
+    session["sso_provider"] = "Fake Enterprise IDP"
+    session["login_method"] = "fake-sso"
+    return redirect(unquote(relay_state))
 
 
 @app.route("/logout")
@@ -276,6 +453,30 @@ def nested_section_detail(section, slug):
     )
 
 
+@app.route("/site/role/<slug>")
+@login_required
+def role_page(slug):
+    page = ROLE_PAGES.get(slug)
+    if not page:
+        abort(404)
+
+    role = current_role()
+    if slug not in ROLE_ACCESS.get(role, set()):
+        return render_portal(
+            "403.html",
+            active_section=None,
+            access_denied_title=page["title"],
+            required_roles=[ROLE_LABELS[item] for item in page["allowed_roles"]],
+        ), 403
+
+    return render_portal(
+        "role_page.html",
+        active_section=None,
+        page=page,
+        breadcrumbs=[("Role Access", None), (page["title"], None)],
+    )
+
+
 @app.route("/site/downloads")
 @login_required
 def downloads():
@@ -323,6 +524,10 @@ def silent_expired():
         "login.html",
         error="Session expired. Please sign in again.",
         redirect_url=url_for("my_account"),
+        fake_sso_enabled=ENABLE_FAKE_SSO,
+        use_sso=False,
+        accounts=USER_DIRECTORY,
+        role_labels=ROLE_LABELS,
     ), 200
 
 

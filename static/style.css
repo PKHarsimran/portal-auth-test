@@ -9,6 +9,10 @@ a {
   color: #1d4ed8;
 }
 
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -29,6 +33,12 @@ a {
 .brand {
   font-weight: 700;
   font-size: 20px;
+}
+
+.topbar-meta {
+  margin-top: 4px;
+  color: #cbd5e1;
+  font-size: 14px;
 }
 
 .topnav {
@@ -77,6 +87,11 @@ a {
   margin-bottom: 20px;
 }
 
+.card-subtle {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
 .sidebar {
   position: sticky;
   top: 20px;
@@ -106,6 +121,10 @@ a {
 
 .nested-list li + li {
   margin-top: 8px;
+}
+
+.role-list {
+  margin-top: 16px;
 }
 
 .hero {
@@ -166,7 +185,8 @@ label {
   font-weight: 600;
 }
 
-input {
+input,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
@@ -198,6 +218,10 @@ button,
   text-align: left;
 }
 
+.button-reset {
+  border: 0;
+}
+
 .alert {
   background: #fee2e2;
   color: #991b1b;
@@ -213,8 +237,13 @@ button,
   flex-wrap: wrap;
 }
 
+.sso-form {
+  margin-top: 16px;
+}
+
 .menu-box {
   display: block;
+  width: 100%;
   margin-top: 10px;
   padding: 14px;
   border-radius: 8px;
@@ -222,11 +251,29 @@ button,
   cursor: pointer;
   text-decoration: none;
   color: #0f172a;
+  border: 0;
+}
+
+.menu-box span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #334155;
 }
 
 .menu-box-secondary {
   background: #dbeafe;
   color: #1e3a8a;
+}
+
+.menu-box-neutral {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.js-menu-grid {
+  display: grid;
+  gap: 10px;
 }
 
 .inline-bg {

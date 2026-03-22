@@ -12,6 +12,7 @@
     <div>
       <div class="eyebrow">Authenticated Test Portal</div>
       <div class="brand">Portal Auth Test</div>
+      <div class="topbar-meta">Signed in as {{ username }} · {{ role_label }}</div>
     </div>
     <nav class="topnav" aria-label="Primary">
       {% for section in portal_sections or [] %}
@@ -32,6 +33,10 @@
         <p class="section-kicker">Session</p>
         <h2 class="sidebar-title">Portal state</h2>
         <p class="muted">{{ requests_remaining }} of {{ max_auth_requests }} authenticated requests remaining.</p>
+        <p class="muted">Account: <strong>{{ account_name }}</strong> · Role: <strong>{{ role_label }}</strong></p>
+        {% if session.get('sso_provider') %}
+        <p class="muted">Login method: {{ session.get('login_method') }} via {{ session.get('sso_provider') }}</p>
+        {% endif %}
       </div>
 
       <div class="sidebar-block">
@@ -55,6 +60,18 @@
         </div>
         {% endfor %}
       </div>
+
+      <div class="sidebar-block">
+        <p class="section-kicker">Role access</p>
+        <div id="js-role-menu" class="js-menu-grid" data-items='{{ js_menu_items|tojson }}'></div>
+        <ul class="nested-list role-list">
+          {% for item in role_navigation or [] %}
+          <li><a href="{{ url_for(item.endpoint, slug=item.slug) }}">{{ item.label }}</a></li>
+          {% else %}
+          <li class="muted">No role-specific pages for this account.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </aside>
 
     <div class="content-column">
@@ -76,5 +93,26 @@
       {% block content %}{% endblock %}
     </div>
   </main>
+
+  <script>
+    document.querySelectorAll("[data-href], [data-link], [data-route]").forEach((el) => {
+      el.addEventListener("click", () => {
+        window.location.href = el.dataset.route || el.dataset.link || el.dataset.href;
+      });
+    });
+
+    const jsRoleMenu = document.getElementById("js-role-menu");
+    if (jsRoleMenu?.dataset.items) {
+      const items = JSON.parse(jsRoleMenu.dataset.items);
+      items.forEach((item) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `menu-box menu-box-${item.tone || "primary"}`;
+        button.dataset.route = item.url;
+        button.innerHTML = `<strong>${item.label}</strong><span>${item.description}</span>`;
+        jsRoleMenu.appendChild(button);
+      });
+    }
+  </script>
 </body>
 </html>

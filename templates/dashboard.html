@@ -57,33 +57,26 @@
   </div>
 
   <div class="card">
-    <h2>Responsive image asset</h2>
-    <p class="muted">Includes `src` + `srcset` for crawler asset discovery.</p>
-    <img
-      alt="Portal analytics preview"
-      class="portal-image"
-      src="{{ url_for('static', filename='portal-preview-large.svg') }}"
-      srcset="{{ url_for('static', filename='portal-preview-small.svg') }} 480w, {{ url_for('static', filename='portal-preview-large.svg') }} 960w"
-      sizes="(max-width: 640px) 100vw, 480px"
-    >
+    <h2>SSO-like redirect chain</h2>
+    <p class="muted">Optional fake identity-provider flow for redirect-chain testing.</p>
+    {% if fake_sso_enabled %}
+    <a class="menu-box" href="{{ url_for('fake_sso_start', redirectUrl=url_for('my_account')) }}">Start fake SSO chain</a>
+    <p class="muted">Chain: <code>/auth/sso/start</code> → <code>/auth/fake-idp/authorize</code> → <code>/auth/sso/callback</code>.</p>
+    {% else %}
+    <p class="muted">Set <code>ENABLE_FAKE_SSO=1</code> to enable the redirect chain.</p>
+    {% endif %}
   </div>
 
   <div class="card">
-    <h2>Iframe asset</h2>
-    <p class="muted">Embeds an internal static document.</p>
-    <iframe
-      class="portal-frame"
-      title="Embedded portal status"
-      src="{{ url_for('static', filename='embedded-status.html') }}"
-    ></iframe>
+    <h2>Role-specific pages</h2>
+    <ul class="link-list">
+      {% for item in role_navigation %}
+      <li><a href="{{ url_for(item.endpoint, slug=item.slug) }}">{{ item.label }}</a></li>
+      {% else %}
+      <li>No role-specific destinations are available for this account.</li>
+      {% endfor %}
+    </ul>
   </div>
 </div>
 
-<script>
-  document.querySelectorAll("[data-href], [data-link]").forEach((el) => {
-    el.addEventListener("click", () => {
-      window.location.href = el.dataset.link || el.dataset.href;
-    });
-  });
-</script>
 {% endblock %}

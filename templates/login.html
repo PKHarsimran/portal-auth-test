@@ -34,6 +34,23 @@
         <button type="submit">Sign in</button>
       </form>
 
+      {% if fake_sso_enabled %}
+      <form method="post" class="sso-form">
+        <input type="hidden" name="redirect_url" value="{{ redirect_url }}">
+        <input type="hidden" name="use_sso" value="1">
+        <button type="submit" class="menu-box menu-box-secondary button-reset">Sign in with Fake Enterprise SSO</button>
+      </form>
+      {% endif %}
+
+      <div class="card card-subtle">
+        <h2>Available test accounts</h2>
+        <ul class="link-list">
+          {% for username, details in accounts.items() %}
+          <li><strong>{{ username }}</strong> — {{ role_labels[details.role] }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
       <div class="helper-links">
         <a href="/forgot-password">Forgot password?</a>
         <a href="/reset-password">Reset password</a>

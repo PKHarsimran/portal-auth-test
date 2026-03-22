@@ -13,6 +13,12 @@
 
 <div class="card">
   <p>You are authenticated, but this section is unavailable for the current role.</p>
+  {% if access_denied_title %}
+  <p class="muted">Requested page: <strong>{{ access_denied_title }}</strong></p>
+  {% endif %}
+  {% if required_roles %}
+  <p class="muted">Required role(s): {{ required_roles|join(', ') }}</p>
+  {% endif %}
   <a href="{{ url_for('my_account') }}">Return to my account</a>
 </div>
 {% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set title = page.title %}
+
+{% block content %}
+<section class="hero card">
+  <div>
+    <p class="section-kicker">Role-based access</p>
+    <h1>{{ page.title }}</h1>
+    <p>{{ page.description }}</p>
+  </div>
+  <div class="status-pill">{{ role_label }}</div>
+</section>
+
+<div class="card">
+  <h2>Page summary</h2>
+  <p>{{ page.summary }}</p>
+  <ul class="link-list">
+    {% for label, endpoint, params in page.links %}
+    <li><a href="{{ url_for(endpoint, **params) }}">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
