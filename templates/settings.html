@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set title = "Settings" %}
+
+{% block content %}
+<div class="card">
+  <h1>Settings</h1>
+  <p>Protected settings page.</p>
+
+  <div
+    class="inline-bg"
+    style="background-image:url('{{ url_for('static', filename='bg-pattern.png') }}')"
+  >
+    Inline style asset test
+  </div>
+</div>
+{% endblock %}
