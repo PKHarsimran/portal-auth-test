@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  portal-test:
+    build: .
+    container_name: portal-auth-test
+    ports:
+      - "8088:5000"
+    environment:
+      FLASK_SECRET_KEY: super-secret-test-key
+      PORTAL_USERNAME: admin
+      PORTAL_PASSWORD: password123
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/login').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
