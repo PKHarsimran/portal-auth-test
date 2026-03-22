@@ -26,8 +26,55 @@
     </nav>
   </header>
 
-  <main class="container">
-    {% block content %}{% endblock %}
+  <main class="container with-sidebar">
+    <aside class="sidebar card">
+      <div class="sidebar-block">
+        <p class="section-kicker">Session</p>
+        <h2 class="sidebar-title">Portal state</h2>
+        <p class="muted">{{ requests_remaining }} of {{ max_auth_requests }} authenticated requests remaining.</p>
+      </div>
+
+      <div class="sidebar-block">
+        <p class="section-kicker">Nested sections</p>
+        {% for group in nested_sections or [] %}
+        <div class="nav-group">
+          <h3>{{ group.label }}</h3>
+          <ul class="nested-list">
+            {% for item in group["items"] %}
+            <li>
+              {% if item.slug is defined and item.section is defined %}
+              <a href="{{ url_for(item.endpoint, section=item.section, slug=item.slug) }}">{{ item.label }}</a>
+              {% elif item.slug is defined %}
+              <a href="{{ url_for(item.endpoint, slug=item.slug) }}">{{ item.label }}</a>
+              {% else %}
+              <a href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <div class="content-column">
+      {% if breadcrumbs %}
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        {% for label, href in breadcrumbs %}
+          {% if href %}
+          <a href="{{ href }}">{{ label }}</a>
+          {% else %}
+          <span>{{ label }}</span>
+          {% endif %}
+          {% if not loop.last %}
+          <span class="breadcrumbs-separator">/</span>
+          {% endif %}
+        {% endfor %}
+      </nav>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
   </main>
 </body>
 </html>

@@ -18,6 +18,7 @@
       <li><a href="{{ url_for('my_account') }}">/site/my-account</a></li>
       <li><a href="{{ url_for('reports') }}">/site/reports</a></li>
       <li><a href="{{ url_for('settings') }}">/site/settings</a></li>
+      <li><a href="{{ url_for('downloads') }}">/site/downloads</a></li>
     </ul>
   </div>
 
@@ -29,8 +30,8 @@
     <button class="nav-btn menu-box-secondary" type="button" data-link="{{ url_for('settings') }}">
       Settings via data-link
     </button>
-    <button class="nav-btn" type="button" onclick="location.href='{{ url_for('settings') }}'">
-      Settings via onclick
+    <button class="nav-btn" type="button" onclick="location.href='{{ url_for('downloads') }}'">
+      Downloads via onclick
     </button>
   </div>
 
@@ -45,6 +46,16 @@
 </div>
 
 <div class="grid">
+  <div class="card">
+    <h2>Deep section shortcuts</h2>
+    <ul class="link-list">
+      <li><a href="{{ url_for('section_detail', slug='benefits') }}">/site/sections/benefits</a></li>
+      <li><a href="{{ url_for('section_detail', slug='coverage') }}">/site/sections/coverage</a></li>
+      <li><a href="{{ url_for('nested_section_detail', section='reports', slug='quarterly-review') }}">/site/reports/quarterly-review</a></li>
+      <li><a href="{{ url_for('nested_section_detail', section='settings', slug='delivery-preferences') }}">/site/settings/delivery-preferences</a></li>
+    </ul>
+  </div>
+
   <div class="card">
     <h2>Responsive image asset</h2>
     <p class="muted">Includes `src` + `srcset` for crawler asset discovery.</p>

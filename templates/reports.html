@@ -18,13 +18,14 @@
       <li><a href="{{ url_for('reports') }}?type=claims">Claims summary</a></li>
       <li><a href="{{ url_for('reports') }}?type=utilization">Utilization trends</a></li>
       <li><a href="{{ url_for('reports') }}?type=access">Access review</a></li>
+      <li><a href="{{ url_for('nested_section_detail', section='reports', slug='quarterly-review') }}">Quarterly review archive</a></li>
     </ul>
   </div>
 
   <div class="card">
     <h2>Embedded actions</h2>
     <div class="menu-box" data-href="{{ url_for('settings') }}">Open delivery settings</div>
-    <div class="menu-box menu-box-secondary" data-link="{{ url_for('my_account') }}">Return to my account</div>
+    <div class="menu-box menu-box-secondary" data-link="{{ url_for('downloads') }}">Open export downloads</div>
   </div>
 </div>
 {% endblock %}

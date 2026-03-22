@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set title = section.title %}
+
+{% block content %}
+<section class="hero card">
+  <div>
+    <p class="section-kicker">{{ section.kicker }}</p>
+    <h1>{{ section.title }}</h1>
+    <p>{{ section.description }}</p>
+  </div>
+  <div class="status-pill">Protected</div>
+</section>
+
+<div class="card">
+  <h2>Section summary</h2>
+  <p>{{ section.summary }}</p>
+  <ul class="link-list">
+    {% for label, endpoint, params in section.links %}
+    <li><a href="{{ url_for(endpoint, **params) }}">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
